@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * Sample Event Bridge App
  * @flow
@@ -5,7 +6,6 @@
 
 import React, { Component } from 'react';
 import {
-  AppRegistry,
   StyleSheet,
   View,
   Text,
@@ -14,14 +14,16 @@ import {
   TouchableHighlight,
   ActivityIndicator,
   Alert,
-  EmitterSubscription
+  EmitterSubscription,
 } from 'react-native';
 
+/* eslint-disable */ // Would yell at us as we don't use it for now
 import EventBridge, {
   enhanceForEventsSupport,
   enhanceForEventsSupportDecorator,
   enhanceForEventsSupportEnhanced
 } from 'react-native-event-bridge';
+/* eslint-enable */
 
 
 // Some Shared components
@@ -36,7 +38,7 @@ class HeaderTitle extends enhanceForEventsSupportEnhanced(Component) {
     // enhanceForEventsSupportEnhanced we don't have to handle the event subscription
     // ourselves
     this.registerEventListener((name, info) => {
-      console.log("Received event from native event: '" + name + "' with info: " + JSON.stringify(info));
+      console.log(`Received event from native event: '${name}' with info: ${JSON.stringify(info)}`);
     });
   }
 
@@ -58,22 +60,17 @@ class HeaderComponent extends Component {
 
   componentDidMount() {
     // Register for an event that will be sent from the native side
+    /* eslint-disable no-unused-vars */ // For some reason info is marked as unused :/
     this._eventSubscription = EventBridge.addEventListener(this, (name, info) => {
-      console.log("Received event from native: '" + name + "' with info: " + JSON.stringify(info));
+    /* eslint-enable no-unused-vars */
+      console.log(`Received event from native: ${name} with info: {JSON.stringify(info)}`);
     });
   }
 
   componentWillUnmount() {
-    this._eventSubscription && this._eventSubscription.remove();
-  }
-
-  // Another way to define a method taht does not need to be bind. It's currently
-  // in Stage 2 though
-  _onButtonPress = () => {
-    // Post an event to native with callback
-    EventBridge.emitEventCallback(this, 'EventWithCallback', () => {
-      Alert.alert("Callback Response", "Some Callback Response");
-    });
+    if (this._eventSubscription) {
+      this._eventSubscription.remove();
+    }
   }
 
   render() {
@@ -83,6 +80,15 @@ class HeaderComponent extends Component {
         <Button onPress={this._onButtonPress} title="Learn More With Callback" />
       </View>
     );
+  }
+
+  // Another way to define a method that does not need to be bind. It's currently
+  // in Stage 2 though
+  _onButtonPress = () => {
+    // Post an event to native with callback
+    EventBridge.emitEventCallback(this, 'EventWithCallback', () => {
+      Alert.alert('Callback Response', 'Some Callback Response');
+    });
   }
 }
 
@@ -99,7 +105,9 @@ type AppState = {
   dataSource: ListView.DataSource
 };
 
+/* eslint-disable */
 export default class App extends Component {
+/* eslint-enable */
   _eventSubscription: ?EmitterSubscription;
   state: AppState;
 
@@ -110,26 +118,24 @@ export default class App extends Component {
   constructor(props: AppProps) {
     super(props);
 
-    const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+    const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
     this.state = {
       isLoading: true,
       dataSource: ds.cloneWithRows([]),
     };
+
+    this._onButtonPress = this._onButtonPress.bind(this);
   }
 
   componentDidMount() {
     // Register for an event that comes from native
     this._eventSubscription = EventBridge.addEventListener(this, (name, info) => {
-      console.log("Received event from native event: '" + name + "' with info: " + JSON.stringify(info));
-      Alert.alert("Received Event From Native", JSON.stringify(info));
+      console.log(`Received event from native event: '${name}' with info: ${JSON.stringify(info)}`);
+      Alert.alert('Received Event From Native', JSON.stringify(info));
     });
 
-    // Fetch some data
-    this.setState({
-      isLoading: true
-    })
     // Load some data and update the data source
-    EventBridge.emitEventInfoCallback(this, 'LoadData', {'count' : 10}, (error, result) => {
+    EventBridge.emitEventInfoCallback(this, 'LoadData', { count: 10 }, (error, result) => {
       this.setState({
         isLoading: false,
         dataSource: this.state.dataSource.cloneWithRows(result),
@@ -138,38 +144,9 @@ export default class App extends Component {
   }
 
   componentWillUnmount() {
-    this._eventSubscription && this._eventSubscription.remove();
-  }
-
-  _onButtonPress = () => {
-    // Post an event to native
-    EventBridge.emitEvent(this, 'LearnMore', {'key':'value'});
-  }
-
-  _onPresentScreen = () => {
-    EventBridge.emitEvent(this, 'PresentScreen');
-  }
-
-  _onDismissScreen = () => {
-    EventBridge.emitEvent(this, 'DismissScreen');
-  }
-
-  _pressRow = (rowID: number) => {
-    // Example how to pass up certain events like a row was selected
-    EventBridge.emitEvent(this, 'DidSelectRow', {'rowID' : rowID});
-  }
-
-  _renderRow = (rowData: string, sectionID: number, rowID: number, highlightRow: (sectionID: number, rowID: number) => void) => {
-    return (
-      <TouchableHighlight onPress={() => {
-          this._pressRow(rowID);
-          //highlightRow(sectionID, rowID);
-        }}>
-        <View>
-          <Text style={styles.listViewRowText}>{rowData}</Text>
-        </View>
-      </TouchableHighlight>
-    );
+    if (this._eventSubscription) {
+      this._eventSubscription.remove();
+    }
   }
 
   render() {
@@ -179,34 +156,75 @@ export default class App extends Component {
         <Text style={styles.instructions}>
           What is Lorem Ipsum?
         </Text>
-        <Button onPress={this._onButtonPress.bind(this)} title="Learn More" />
+        <Button onPress={this._onButtonPress} title="Learn More" />
         <Text style={styles.instructions}>
           Lorem Ipsum is simply dummy text of {'\n'}
           the printing and typesetting industry.
         </Text>
         {this.state.isLoading ? (
-          SHOW_LOADING_TEXT ? (
-              // Show loading text
-              <View style={{flexGrow: 1.0, flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-                <Text style={{fontSize: 20}}>Loading</Text>
-              </View>
-            ) : (
-              // Show loading spinner
-              <View style={{flexGrow: 1.0, flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-                <ActivityIndicator />
-              </View>
-            )
+          this._renderLoadingComponent()
         ) : (
-          <ListView
-          enableEmptySections={true}
-          style={{}}
-          dataSource={this.state.dataSource}
-          renderRow={this._renderRow}
-          />)}
+          this._renderListComponent(this.state)
+        )}
         <Button onPress={this._onPresentScreen} title="Present New Screen" />
         <Button onPress={this._onDismissScreen} title="Dismiss Screen" />
       </View>
     );
+  }
+
+  _onButtonPress = () => {
+    // Post an event to native
+    EventBridge.emitEvent(this, 'LearnMore', { key: 'value' });
+  }
+
+  _renderLoadingComponent = () => (
+    SHOW_LOADING_TEXT ? (
+    // Show loading text
+      <View style={{ flexGrow: 1.0, flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <Text style={{ fontSize: 20 }}>Loading</Text>
+      </View>
+    ) : (
+      // Show loading spinner
+      <View style={{ flexGrow: 1.0, flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator />
+      </View>
+    )
+  )
+
+  _renderListComponent = state => (
+    <ListView
+      enableEmptySections
+      style={{}}
+      dataSource={state.dataSource}
+      renderRow={this._renderRow}
+    />
+  )
+
+/* eslint-disable */
+  _renderRow = (rowData: string, sectionID: number, rowID: number, highlightRow: (sectionID: number, rowID: number) => void) => (
+/* eslint-enable */
+    <TouchableHighlight onPress={() => {
+      this._pressRow(rowID);
+      // highlightRow(sectionID, rowID);
+    }}
+    >
+      <View>
+        <Text style={styles.listViewRowText}>{rowData}</Text>
+      </View>
+    </TouchableHighlight>
+  );
+
+  _pressRow = (rowID: number) => {
+    // Example how to pass up certain events like a row was selected
+    EventBridge.emitEvent(this, 'DidSelectRow', { rowID });
+  }
+
+  _onPresentScreen = () => {
+    EventBridge.emitEvent(this, 'PresentScreen');
+  }
+
+  _onDismissScreen = () => {
+    EventBridge.emitEvent(this, 'DismissScreen');
   }
 }
 
@@ -216,7 +234,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#F5FCFF',
-    paddingTop: 10
+    paddingTop: 10,
   },
   welcome: {
     fontSize: 20,
@@ -227,12 +245,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#333333',
     marginBottom: 10,
-    marginTop: 10
+    marginTop: 10,
   },
   listViewRow: {
     height: 22,
   },
   listViewRowText: {
-    fontSize: 16
-  }
+    fontSize: 16,
+  },
 });
