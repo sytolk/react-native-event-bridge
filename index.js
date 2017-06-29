@@ -3,9 +3,9 @@
  * @flow
  */
 
- // Native Event Bridge
- // Wrapper around sending and receieving events that are related to components
- // and view hierarchy of a root view
+// Native Event Bridge
+// Wrapper around sending and receieving events that are related to components
+// and view hierarchy of a root view
 
 import React from 'react';
 import {
@@ -28,7 +28,11 @@ const { MSREventBridge } = NativeModules;
 // view / view controller or activity
 
 // Emit an event to the native side
-const emitEvent = (component: React.Component<any, any, any>, eventName: string, info: any) => {
+const emitEvent = (
+  component: React.Component<any, any, any>,
+  eventName: string,
+  info: any
+) => {
   let reactTag;
   try {
     reactTag = findNodeHandle(component);
@@ -42,9 +46,10 @@ const emitEvent = (component: React.Component<any, any, any>, eventName: string,
 // Emit an event to the native side and expect a callback
 const emitEventCallback = (
   component: React.Component<any, any, any>,
-  eventName: string, info: any,
-  callback: (Array<any>) => void,
-) : void => {
+  eventName: string,
+  info: any,
+  callback: (Array<any>) => void
+): void => {
   let reactTag;
   try {
     reactTag = findNodeHandle(component);
@@ -59,13 +64,17 @@ const emitEventCallback = (
 const MSREventBridgeEventEmitter = new NativeEventEmitter(MSREventBridge);
 const addEventListener = (
   component: React.Component<any, any, any>,
-  callback: (string, any) => void,
+  callback: (string, any) => void
 ): EmitterSubscription => {
   // Every component that would like to receive an event to native needs to have
   // a rootTag in it's context otherwise it would not be possible to identify
   // to which callback the event should be dispatched
   const componentReactTag = component.context.rootTag;
-  invariant(componentReactTag != null, 'If you would like receive events you have to define the reactTag in your contexts. Component: %s', component.constructor.name);
+  invariant(
+    componentReactTag != null,
+    'If you would like receive events you have to define the reactTag in your contexts. Component: %s',
+    component.constructor.name
+  );
 
   return MSREventBridgeEventEmitter.addListener(
     MSREventBridge.EventName,
@@ -83,7 +92,7 @@ const addEventListener = (
       const eventName = body[MSREventBridge.EventNameKey];
       const eventInfo = body[MSREventBridge.EventInfoKey];
       callback(eventName, eventInfo);
-    },
+    }
   );
 };
 
@@ -95,15 +104,14 @@ const EventBridge = {
   // remove the component will unmount
   addEventListener: (
     component: React.Component<any, any, any>,
-    callback: (any) => void,
-  ): EmitterSubscription => (
-    addEventListener(component, callback)
-  ),
+    callback: any => void
+  ): EmitterSubscription => addEventListener(component, callback),
 
   // Emit an event to the native side
   emitEvent: (
     component: React.Component<any, any, any>,
-    eventName: string, info: any,
+    eventName: string,
+    info: any
   ): void => {
     emitEvent(component, eventName, info);
   },
@@ -112,7 +120,7 @@ const EventBridge = {
   emitEventCallback: (
     component: React.Component<any, any, any>,
     eventName: string,
-    callback: (Array<any>) => void,
+    callback: (Array<any>) => void
   ): void => {
     emitEventCallback(component, eventName, null, callback);
   },
@@ -122,7 +130,7 @@ const EventBridge = {
     component: React.Component<any, any, any>,
     eventName: string,
     info: any,
-    callback: (Array<any>) => void,
+    callback: (Array<any>) => void
   ): void => {
     emitEventCallback(component, eventName, info, callback);
   },

@@ -15,8 +15,7 @@ import EventBridge from './index';
 const enhanceForEventsSupport = (ComposedComponent: React.Component<any>) => {
   const _key = 'EventsBridgeEnhance_Listeners';
 
-  return class extends (ComposedComponent:any) {
-
+  return class extends (ComposedComponent: any) {
     static contextTypes = {
       rootTag: React.PropTypes.number,
     };
@@ -25,18 +24,16 @@ const enhanceForEventsSupport = (ComposedComponent: React.Component<any>) => {
       if (super.componentWillUnmount) {
         super.componentWillUnmount();
       }
-      const {
-        [_key]: listeners,
-      } = this;
+      const { [_key]: listeners } = this;
       if (listeners) {
-        listeners.forEach((listener) => {
+        listeners.forEach(listener => {
           listener.remove();
         });
       }
       this[_key] = null;
     }
 
-    registerEventListener(...listeners:Array<EmitterSubscription>) {
+    registerEventListener(...listeners: Array<EmitterSubscription>) {
       const { [_key]: listenerList } = this;
       if (!listenerList) {
         this[_key] = listeners;
@@ -52,8 +49,8 @@ export default enhanceForEventsSupport;
 
 /* Experimental
 /********************************/
-const enhanceForEventsSupportEnhanced = (ComposedComponent: any) => (
-  class extends (ComposedComponent:any) {
+const enhanceForEventsSupportEnhanced = (ComposedComponent: any) =>
+  class extends (ComposedComponent: any) {
     _subscribableSubscriptions: ?Array<EmitterSubscription>;
 
     static contextTypes = {
@@ -66,8 +63,8 @@ const enhanceForEventsSupportEnhanced = (ComposedComponent: any) => (
 
     componentWillUnmount() {
       if (this._subscribableSubscriptions) {
-        this._subscribableSubscriptions.forEach(
-          subscription => subscription.remove(),
+        this._subscribableSubscriptions.forEach(subscription =>
+          subscription.remove()
         );
       }
       this._subscribableSubscriptions = null;
@@ -76,19 +73,18 @@ const enhanceForEventsSupportEnhanced = (ComposedComponent: any) => (
     registerEventListener(callback: any) {
       if (this._subscribableSubscriptions) {
         this._subscribableSubscriptions.push(
-          EventBridge.addEventListener(this, callback),
+          EventBridge.addEventListener(this, callback)
         );
       }
     }
-  }
-);
+  };
 
 function enhanceForEventsSupportDecorator() {
   // eslint-disable-next-line func-names
-  return function (DecoratedComponent: React.Component<any>) {
+  return function(DecoratedComponent: React.Component<any>) {
     const _key = 'ViewControllerEventsListenerEnhance_listeners';
 
-    return class extends (DecoratedComponent:any) {
+    return class extends (DecoratedComponent: any) {
       static contextTypes = {
         rootTag: React.PropTypes.number,
       };
@@ -97,18 +93,16 @@ function enhanceForEventsSupportDecorator() {
         if (super.componentWillUnmount) {
           super.componentWillUnmount();
         }
-        const {
-          [_key]: listeners,
-        } = this;
+        const { [_key]: listeners } = this;
         if (listeners) {
-          listeners.forEach((listener) => {
+          listeners.forEach(listener => {
             listener.remove();
           });
         }
         this[_key] = null;
       }
 
-      registerEventListener(...listeners:Array<EmitterSubscription>) {
+      registerEventListener(...listeners: Array<EmitterSubscription>) {
         const { [_key]: listenerList } = this;
         if (!listenerList) {
           this[_key] = listeners;
@@ -121,7 +115,4 @@ function enhanceForEventsSupportDecorator() {
   };
 }
 
-export {
-  enhanceForEventsSupportDecorator,
-  enhanceForEventsSupportEnhanced,
-};
+export { enhanceForEventsSupportDecorator, enhanceForEventsSupportEnhanced };

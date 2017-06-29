@@ -22,10 +22,13 @@ export default class ReactNativeEventBridgeSwift extends React.Component {
   };
 
   componentDidMount() {
-    // eslint-disable-next-line no-unused-vars
-    this._eventSubscription = EventBridge.addEventListener(this, (name, info) => {
-      Alert.alert('Native Event', 'Received Event from Native');
-    });
+    this._eventSubscription = EventBridge.addEventListener(
+      this,
+      // eslint-disable-next-line no-unused-vars
+      (name, info) => {
+        Alert.alert('Native Event', 'Received Event from Native');
+      }
+    );
   }
 
   componentWillUnmount() {
@@ -37,14 +40,14 @@ export default class ReactNativeEventBridgeSwift extends React.Component {
   buttonClicked = () => {
     // Emit an event from within a React component
     EventBridge.emitEvent(this, 'Event');
-  }
+  };
 
   buttonClickedCallback = () => {
     // Emit an event with callback from within a React component
     EventBridge.emitEventCallback(this, 'EventWithCallback', () => {
       Alert.alert('Callback Response', 'Some Callback Response');
     });
-  }
+  };
 
   render() {
     return (
@@ -52,10 +55,7 @@ export default class ReactNativeEventBridgeSwift extends React.Component {
         <Text style={styles.welcome}>
           Welcome to React Native Event Bridge!
         </Text>
-        <Button
-          onPress={this.buttonClicked}
-          title="Send RN Event"
-        />
+        <Button onPress={this.buttonClicked} title="Send RN Event" />
         <Button
           onPress={this.buttonClickedCallback}
           title="Send RN Event With Callback"
@@ -79,4 +79,7 @@ const styles = StyleSheet.create({
   },
 });
 
-AppRegistry.registerComponent('ReactNativeEventBridgeSwift', () => ReactNativeEventBridgeSwift);
+AppRegistry.registerComponent(
+  'ReactNativeEventBridgeSwift',
+  () => ReactNativeEventBridgeSwift
+);
