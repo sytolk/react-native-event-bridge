@@ -5,6 +5,10 @@
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
     "sync-rneb": "rm -rf ./node_modules/react-native-event-bridge; sane '/usr/bin/rsync -v -a --exclude .git --exclude example --exclude example-swift --exclude node_modules ../../../ ./node_modules/react-native-event-bridge/' ../../../ --glob={**/*.json,**/*.js} --watchman",
+    "eslint": "eslint . --ext js",
+    "flow": "flow",
+    "lint": "npm run eslint",
+    "prettier": "find . -name \"*.js\" -not -path \"*/node_modules/*\" | xargs prettier --single-quote --trailing-comma es5 --write",
     "test": "jest"
   },
   "dependencies": {

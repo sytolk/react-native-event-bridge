@@ -1,10 +1,19 @@
 {
   "parser": "babel-eslint",
-  "extends": "airbnb",
+  "extends": [
+    "airbnb",
+    "plugin:flowtype/recommended",
+    "prettier",
+    "prettier/flowtype",
+    "prettier/react"
+  ],
   "plugins": [
-    "prefer-object-spread"
+    "prefer-object-spread",
+    "flowtype",
+    "prettier"
   ],
   "rules": {
+    "prettier/prettier": ["error", {"trailingComma": "es5", "singleQuote": true}],
     "prefer-object-spread/prefer-object-spread": 2,
     "react/jsx-filename-extension": 0,
     "react/prefer-stateless-function": 0,
